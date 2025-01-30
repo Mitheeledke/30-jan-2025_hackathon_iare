@@ -1,5 +1,8 @@
 import pandas as pd  
 import numpy as np 
+import dash
+from dash import dcc, html
+import plotly.express as px
 import warnings
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -29,6 +32,13 @@ IQR = Q3 - Q1
 
 # Apply IQR filter only on numeric data
 df_filtered = df[~((numeric_cols < (Q1 - 1.5 * IQR)) | (numeric_cols > (Q3 + 1.5 * IQR))).any(axis=1)]
+
+app = dash.Dash(__name__)
+fig_temp = px.line(df, x="Year", y="Avg Temperature (°C)", title="Global Temperature Trends")
+fig_co2 = px.bar(df.groupby("Country")["CO2 Emissions (Tons/Capita)"].mean().nlargest(10).reset_index(),
+                 x="Country", y="CO2 Emissions (Tons/Capita)", title="Top 10 CO₂ Emitting Countries")
+
+
  # Check if rows were removed
 """plt.figure(figsize=(12, 6))
 sns.lineplot(x=df["Year"], y=df["Avg Temperature (°C)"], ci=None)
@@ -145,7 +155,21 @@ plt.title("Global Temperature Forecasting with ARIMA")
 plt.legend()
 plt.show()
 
-# Print the forecasted values
-#print(forecast_df)
+# Create Plotly line chart
+fig_forecast = px.line(df, x="Year", y="Avg Temperature (°C)", title="Global Temperature Forecasting with ARIMA",
+                        labels={"Year": "Year", "Avg Temperature (°C)": "Avg Temperature (°C)"},
+                        line_shape="linear")
+fig_forecast.add_scatter(x=forecast_df["Year"], y=forecast_df["Predicted Avg Temperature (°C)"],
+                         mode="lines", name="Predicted Avg Temperature", line=dict(dash="dash", color="red"))
+# Define layout
+app.layout = html.Div(children=[
+    html.H1("Climate Change Analysis Dashboard"),
+    dcc.Graph(id='temperature-trend', figure=fig_temp),
+    dcc.Graph(id='co2-emissions', figure=fig_co2),
+    dcc.Graph(id="temperature-forecast", figure=fig_forecast)
+])
 
+#print(forecast_df)
+if __name__ == '__main__':
+    app.run_server(debug=True)
 
