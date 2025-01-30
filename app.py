@@ -155,18 +155,21 @@ plt.title("Global Temperature Forecasting with ARIMA")
 plt.legend()
 plt.show()
 
-# Create Plotly line chart
-fig_forecast = px.line(df, x="Year", y="Avg Temperature (°C)", title="Global Temperature Forecasting with ARIMA",
-                        labels={"Year": "Year", "Avg Temperature (°C)": "Avg Temperature (°C)"},
-                        line_shape="linear")
-fig_forecast.add_scatter(x=forecast_df["Year"], y=forecast_df["Predicted Avg Temperature (°C)"],
-                         mode="lines", name="Predicted Avg Temperature", line=dict(dash="dash", color="red"))
+fig_arima = go.Figure()
+fig_arima.add_trace(go.Scatter(x=df["Year"], y=df["Avg Temperature (°C)"], 
+                               mode="lines", name="Historical Avg Temperature", line=dict(color="blue")))
+fig_arima.add_trace(go.Scatter(x=forecast_df["Year"], y=forecast_df["Predicted Avg Temperature (°C)"], 
+                               mode="lines", name="Predicted Avg Temperature", line=dict(color="red", dash="dash")))
+
+fig_arima.update_layout(title="Global Temperature Forecasting with ARIMA",
+                        xaxis_title="Year", yaxis_title="Avg Temperature (°C)",
+                        legend_title="Legend")
 # Define layout
 app.layout = html.Div(children=[
     html.H1("Climate Change Analysis Dashboard"),
     dcc.Graph(id='temperature-trend', figure=fig_temp),
     dcc.Graph(id='co2-emissions', figure=fig_co2),
-    dcc.Graph(id="temperature-forecast", figure=fig_forecast)
+    dcc.Graph(id="temperature-forecast", figure=fig_arima)
 ])
 
 #print(forecast_df)
