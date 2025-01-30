@@ -3,6 +3,9 @@ import numpy as np
 import warnings
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -56,3 +59,20 @@ plt.figure(figsize=(10,6))
 sns.heatmap(numeric_cols.corr(), annot=True, cmap="coolwarm", fmt=".2f")
 plt.title("Correlation Between Climate Factors")
 plt.show()
+
+
+# Select features and target variable
+features = df[['Year', 'CO2 Emissions (Tons/Capita)', 'Rainfall (mm)', 'Population', 'Renewable Energy (%)', 'Forest Area (%)']]
+target = df['Avg Temperature (°C)']  # Example: Predicting temperature
+
+# Split data (80% training, 20% testing)
+X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
+
+
+
+# Train the model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Predict future values
+y_pred = model.predict(X_test)
